@@ -28,7 +28,14 @@ $path = count( $options['arguments'] ) > 0 ? $options['arguments'][0] :  '.';
 
 $replacements = array();
 
-$handle = fopen( 'new_constants.csv', 'r' );
+$handle = @fopen( 'new_constants.csv', 'r' );
+
+if ( !$handle )
+{
+    $script->shutdown( 1, 'Unable to open CSV file new_constants.csv' );
+}
+
+$headers = fgetcsv( $handle, 1000, ',' );
 
 while ( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false )
 {
@@ -61,10 +68,15 @@ foreach( $phpFiles as $file )
             {
                 case T_STRING:
                 {
-                    if ( array_key_exists( $token[1], $replacements ) )
+                    if ( !isset( $tokens[$key - 1] ) ||
+                         !is_array( $tokens[$key - 1] ) ||
+                         !in_array( $tokens[$key - 1][0], array( T_DOUBLE_COLON, T_OBJECT_OPERATOR ) ) )
                     {
-                        $storeRequired = true;
-                        $tokens[$key][1] = $replacements[$token[1]];
+                        if ( array_key_exists( $token[1], $replacements ) )
+                        {
+                            $storeRequired = true;
+                            $tokens[$key][1] = $replacements[$token[1]];
+                        }
                     }
                 } break;
             }
