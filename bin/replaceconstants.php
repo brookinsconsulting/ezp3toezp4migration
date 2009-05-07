@@ -7,9 +7,9 @@ $cli = eZCLI::instance();
 
 $scriptSettings = array();
 $scriptSettings['description'] = 'Find constants in PHP files and replaces them based on replacement values in a CSV file';
-$scriptSettings['use-session'] = true;
-$scriptSettings['use-modules'] = true;
-$scriptSettings['use-extensions'] = true;
+$scriptSettings['use-session'] = false;
+$scriptSettings['use-modules'] = false;
+$scriptSettings['use-extensions'] = false;
 
 $script = eZScript::instance( $scriptSettings );
 $script->startup();
@@ -28,11 +28,12 @@ $path = count( $options['arguments'] ) > 0 ? $options['arguments'][0] :  '.';
 
 $replacements = array();
 
-$handle = @fopen( 'new_constants.csv', 'r' );
+$constantsFile = dirname( __FILE__ ) . '/new_constants.csv';
+$handle = @fopen( $constantsFile, 'r' );
 
 if ( !$handle )
 {
-    $script->shutdown( 1, 'Unable to open CSV file new_constants.csv' );
+    $script->shutdown( 1, 'Unable to open CSV file ' . $constantsFile );
 }
 
 $headers = fgetcsv( $handle, 1000, ',' );
